@@ -17,8 +17,9 @@ class TrackUpdatesService
         $updateInfo = Craft::$app->getUpdates()->getUpdates();
         $latestCraftVersion = ! empty($updateInfo->cms->releases) ? $updateInfo->cms->releases[0]->version : $craftVersion;
         $craftLicenseKey = VersionHelper::getCraftLicenseKey();
-        $is_abandoned = isset($updateInfo->cms->abandoned) ? $updateInfo->cms->abandoned : null;
+        $is_abandoned = isset($updateInfo->cms->abandoned) && $updateInfo->cms->abandoned;
         $is_expired = isset($updateInfo->cms->status) && $updateInfo->cms->status === "eligible";
+
         $containsCritical = isset($updateInfo->cms->releases) && 
             array_reduce($updateInfo->cms->releases, function($carry, $release) {
                 return $carry || (isset($release->critical) && $release->critical === true);
@@ -86,7 +87,6 @@ class TrackUpdatesService
                 'is_abandoned' => $is_abandoned,
             ];
         }
-        dd($plugins_updates);
         return $plugins_updates;
     }
 
