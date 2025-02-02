@@ -52,7 +52,7 @@ php craft update-tracker/check-for-updates/run
 ### Force Update Check
 Force an update check and bypass schedule:
 ```bash
-php craft update-tracker/check-for-updates/run --forced
+php craft update-tracker/check-for-updates/run --force
 ```
 
 ---

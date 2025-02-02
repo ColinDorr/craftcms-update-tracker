@@ -13,7 +13,7 @@ class CheckForUpdatesController extends Controller
     /**
      * @var bool Whether to force the update check
      */
-    public bool $forced = false;
+    public bool $force = false;
 
     /**
      * Define available options for the command
@@ -22,7 +22,7 @@ class CheckForUpdatesController extends Controller
      */
     public function options($actionID): array
     {
-        return array_merge(parent::options($actionID), ['forced']);
+        return array_merge(parent::options($actionID), ['force']);
     }
 
     /**
@@ -30,7 +30,7 @@ class CheckForUpdatesController extends Controller
      *
      * Usage:
      * - `php craft update-tracker/check-for-updates/run`
-     * - `php craft update-tracker/check-for-updates/run --forced`
+     * - `php craft update-tracker/check-for-updates/run --force`
      *
      * @return int Exit code
      */
@@ -38,7 +38,7 @@ class CheckForUpdatesController extends Controller
     {
         try {
             $updateService = new UpdateNotificationServices();
-            $update_status = $updateService->checkForUpdatesAndSendEmail($this->forced);
+            $update_status = $updateService->checkForUpdatesAndSendEmail($this->force);
 
             $this->stdout("\nMail status:\n-------------------------\n");
             foreach ($update_status as $status) {
