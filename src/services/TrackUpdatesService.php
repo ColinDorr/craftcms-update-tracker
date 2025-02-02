@@ -73,6 +73,8 @@ class TrackUpdatesService
                 $pluginLicenseKey = App::env(ltrim($pluginLicenseKey, '$')) ?? null;
             }
 
+            dd( $plugin_data );
+
             $plugins_updates[] = (object) [
                 'type' => 'plugin',
                 'handle' => $plugin_handle,
