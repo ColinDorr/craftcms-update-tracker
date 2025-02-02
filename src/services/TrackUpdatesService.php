@@ -18,7 +18,7 @@ class TrackUpdatesService
         $latestCraftVersion = ! empty($updateInfo->cms->releases) ? $updateInfo->cms->releases[0]->version : $craftVersion;
         $craftLicenseKey = VersionHelper::getCraftLicenseKey();
         $is_abandoned = isset($updateInfo->cms->abandoned) ? $updateInfo->cms->abandoned : null;
-        $is_expired = isset($updateInfo->cms->status) ? ($updateInfo->cms->status === "eligible" ? false : null) : null;
+        $is_expired = isset($updateInfo->cms->status) && $updateInfo->cms->status === "eligible";
         $containsCritical = isset($updateInfo->cms->releases) && 
             array_reduce($updateInfo->cms->releases, function($carry, $release) {
                 return $carry || (isset($release->critical) && $release->critical === true);
@@ -61,7 +61,7 @@ class TrackUpdatesService
             $plugin_data = $updateInfo->plugins[$plugin_handle] ?? null ;
             $latestPluginVersion = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) ? $updateInfo->plugins[$plugin_handle]->releases[0]->version : $plugin->version;
             $is_abandoned = $plugin_data && isset($plugin_data->abandoned) ? $plugin_data->abandoned : null;
-            $is_expired = $plugin_data && isset($plugin_data->status) ? $plugin_data->status === "eligible" : null;
+            $is_expired = $plugin_data && isset($plugin_data->status) && $plugin_data->status === "eligible";
             $containsCritical = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) && !empty(array_filter($updateInfo->plugins[$plugin_handle]->releases, function($release) {
                 return $release->critical === true;
             }));
@@ -86,6 +86,7 @@ class TrackUpdatesService
                 'is_abandoned' => $is_abandoned,
             ];
         }
+        dd($plugins_updates);
         return $plugins_updates;
     }
 
