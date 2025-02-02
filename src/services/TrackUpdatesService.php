@@ -18,15 +18,11 @@ class TrackUpdatesService
         $latestCraftVersion = ! empty($updateInfo->cms->releases) ? $updateInfo->cms->releases[0]->version : $craftVersion;
         $craftLicenseKey = VersionHelper::getCraftLicenseKey();
         $is_abandoned = isset($updateInfo->cms->abandoned) ? $updateInfo->cms->abandoned : null;
-        $is_expired = isset($updateInfo->cms->status) ? $updateInfo->cms->status === "eligible" : null;
-        $containsCritical = !empty($updateInfo->cms->releases) && !empty(array_filter($updateInfo->cms->releases, function($release) {
-            return $release->critical === true;
-        }));
-
-
-        dd($updateInfo->cms);
-
-
+        $is_expired = isset($updateInfo->cms->status) ? ($updateInfo->cms->status === "eligible" ? false : null) : null;
+        $containsCritical = isset($updateInfo->cms->releases) && 
+            array_reduce($updateInfo->cms->releases, function($carry, $release) {
+                return $carry || (isset($release->critical) && $release->critical === true);
+            }, false);
 
         return [(object) [
             'type' => 'craft',
@@ -62,12 +58,15 @@ class TrackUpdatesService
         foreach ($plugins as $handle => $plugin) {
             // $plugin_handle = $handle; craft 5
             $plugin_handle = $plugin->id; // craft 3
-            $latestPluginVersion = ! empty($updateInfo->plugins[$plugin_handle]->releases) ? $updateInfo->plugins[$plugin_handle]->releases[0]->version : $plugin->version;
-            $is_abandoned = isset($updateInfo->plugins[$plugin_handle]->abandoned) ? $updateInfo->plugins[$plugin_handle]->abandoned : null;
-            $is_expired = isset($updateInfo->plugins[$plugin_handle]->status) ? $updateInfo->plugins[$plugin_handle]->status === "eligible" : null;
-            $containsCritical = !empty($updateInfo->plugins[$plugin_handle]->releases) && !empty(array_filter($updateInfo->plugins[$plugin_handle]->releases, function($release) {
-                return $release->critical === true;
-            }));
+            $latestPluginVersion = isset($updateInfo->plugins[$plugin_handle]->releases[0]->version)
+                ? $updateInfo->plugins[$plugin_handle]->releases[0]->version
+                : $plugin->version;
+            $is_abandoned = $updateInfo->plugins[$plugin_handle]->abandoned ?? null;
+            $is_expired = $updateInfo->plugins[$plugin_handle]->status === "eligible" ? false : null;
+            $containsCritical = isset($updateInfo->plugins[$plugin_handle]->releases) && 
+                array_reduce($updateInfo->plugins[$plugin_handle]->releases, function($carry, $release) {
+                    return $carry || (isset($release->critical) && $release->critical === true);
+                }, false);
 
             // Get plugin license key
             $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
