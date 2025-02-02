@@ -21,10 +21,10 @@ use colindorr\craftcmsupdatetracker\services\TrackUpdatesService;
  */
 class UpdateTracker extends Plugin
 {
-    public static string $schemaVersion = '1.0.0';
-    public static bool $hasCpSettings = true;
     public static string $plugin_handle = "update-tracker";
-
+    public bool $hasCpSettings = true;
+    public string $schemaVersion = '1.0.0';
+    
     public function init(): void
     {
         parent::init();
