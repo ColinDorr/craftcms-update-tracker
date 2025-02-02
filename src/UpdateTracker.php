@@ -29,13 +29,6 @@ class UpdateTracker extends Plugin
     {
         parent::init();
 
-        // Craft 4
-        // Deferred code execution to avoid conflicts with other plugins/modules
-        // Craft::$app->onInit(function () {
-        //     $update_status = UpdateNotificationServices::checkForUpdatesAndSendEmail();
-        // });
-
-        // Craft 3
         Craft::$app->on(Application::EVENT_INIT, function () {
             UpdateNotificationServices::checkForUpdatesAndSendEmail();
         });

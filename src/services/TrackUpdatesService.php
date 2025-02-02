@@ -18,7 +18,7 @@ class TrackUpdatesService
         $latestCraftVersion = ! empty($updateInfo->cms->releases) ? $updateInfo->cms->releases[0]->version : $craftVersion;
         $craftLicenseKey = VersionHelper::getCraftLicenseKey();
         $is_abandoned = isset($updateInfo->cms->abandoned) && $updateInfo->cms->abandoned;
-        $is_expired = isset($updateInfo->cms->status) && $updateInfo->cms->status === "eligible";
+        $is_expired = isset($updateInfo->cms->status) && $updateInfo->cms->status !== "eligible";
 
         $containsCritical = isset($updateInfo->cms->releases) && 
             array_reduce($updateInfo->cms->releases, function($carry, $release) {
@@ -55,14 +55,12 @@ class TrackUpdatesService
 
         // Iterate through all plugins and add plugin objects to the $versions array
         $plugins_updates = [];
-        // dd($plugins);
         foreach ($plugins as $handle => $plugin) {
-            // $plugin_handle = $handle; craft 5
-            $plugin_handle = $plugin->id; // craft 3
+            $plugin_handle = $plugin->id;
             $plugin_data = $updateInfo->plugins[$plugin_handle] ?? null ;
             $latestPluginVersion = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) ? $updateInfo->plugins[$plugin_handle]->releases[0]->version : $plugin->version;
             $is_abandoned = $plugin_data && isset($plugin_data->abandoned) && $plugin_data->abandoned;
-            $is_expired = $plugin_data && isset($plugin_data->status) && $plugin_data->status === "eligible";
+            $is_expired = $plugin_data && isset($plugin_data->status) && $plugin_data->status !== "eligible";
             $containsCritical = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) && !empty(array_filter($updateInfo->plugins[$plugin_handle]->releases, function($release) {
                 return $release->critical === true;
             }));
@@ -72,14 +70,6 @@ class TrackUpdatesService
             if ($pluginLicenseKey && $pluginLicenseKey[0] === "$") {
                 $pluginLicenseKey = App::env(ltrim($pluginLicenseKey, '$')) ?? null;
             }
-
-            dd([
-                "data" =>  $plugin_data ,
-                "check_1" => $plugin_data && isset($plugin_data->status),
-                "check_2" => $plugin_data && isset($plugin_data->status) && $plugin_data->status,
-                "check_3" => $plugin_data && isset($plugin_data->status) && $plugin_data->status === "eligible",
-                "check_4" => $plugin_data && isset($plugin_data->status) && $plugin_data->status == "eligible",
-            ]);
 
             $plugins_updates[] = (object) [
                 'type' => 'plugin',
@@ -95,7 +85,6 @@ class TrackUpdatesService
                 'is_abandoned' => $is_abandoned,
             ];
         }
-        dd($plugins_updates);
         return $plugins_updates;
     }
 
