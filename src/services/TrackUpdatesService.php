@@ -66,6 +66,8 @@ class TrackUpdatesService
                 return $release->critical === true;
             }));
 
+            dd($plugin_data);
+
             // Get plugin license key
             $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
             if ($pluginLicenseKey && $pluginLicenseKey[0] === "$") {
