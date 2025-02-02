@@ -73,7 +73,13 @@ class TrackUpdatesService
                 $pluginLicenseKey = App::env(ltrim($pluginLicenseKey, '$')) ?? null;
             }
 
-            dd( $plugin_data );
+            dd([
+                "data" =>  $plugin_data ,
+                "check_1" => $plugin_data && isset($plugin_data->status),
+                "check_2" => $plugin_data && isset($plugin_data->status) && $plugin_data->status,
+                "check_3" => $plugin_data && isset($plugin_data->status) && $plugin_data->status === "eligible",
+                "check_4" => $plugin_data && isset($plugin_data->status) && $plugin_data->status == "eligible",
+            ]);
 
             $plugins_updates[] = (object) [
                 'type' => 'plugin',
