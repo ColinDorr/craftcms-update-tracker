@@ -66,6 +66,15 @@ class TrackUpdatesService
                 return $release->critical === true;
             }));
 
+            dd([
+                "check_1"=> isset($plugin_data->abandoned),
+                "check_2"=> $plugin_data && isset($plugin_data->abandoned) ? $plugin_data->abandoned : null,
+                "check_3"=> $plugin_data && isset($plugin_data->abandoned) && $plugin_data->abandoned,
+                "plugin_data" => $plugin_data
+            ]
+                
+            );
+
             // Get plugin license key
             $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
             if ($pluginLicenseKey && $pluginLicenseKey[0] === "$") {
