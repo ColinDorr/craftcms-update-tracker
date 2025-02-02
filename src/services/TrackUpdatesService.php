@@ -56,37 +56,51 @@ class TrackUpdatesService
         $plugins_updates = [];
         // dd($plugins);
         foreach ($plugins as $handle => $plugin) {
-            // $plugin_handle = $handle; craft 5
-            $plugin_handle = $plugin->id; // craft 3
-            $latestPluginVersion = isset($updateInfo->plugins[$plugin_handle]->releases[0]->version)
-                ? $updateInfo->plugins[$plugin_handle]->releases[0]->version
-                : $plugin->version;
-            $is_abandoned = $updateInfo->plugins[$plugin_handle]->abandoned ?? null;
-            $is_expired = $updateInfo->plugins[$plugin_handle]->status === "eligible" ? false : null;
-            $containsCritical = isset($updateInfo->plugins[$plugin_handle]->releases) && 
-                array_reduce($updateInfo->plugins[$plugin_handle]->releases, function($carry, $release) {
-                    return $carry || (isset($release->critical) && $release->critical === true);
-                }, false);
+            // Assuming $plugin_data is your updated object containing plugin information
+            $plugin_handle = $plugin_data->id; // craft 3 - updated to use $plugin_data
+            $plugin_data = $updateInfo->plugins[$plugin_handle] ?? null; // Retrieve plugin data
 
-            // Get plugin license key
-            $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
-            if ($pluginLicenseKey && $pluginLicenseKey[0] === "$") {
-                $pluginLicenseKey = App::env(ltrim($pluginLicenseKey, '$')) ?? null;
+            // Check if plugin data exists, then proceed
+            if ($plugin_data) {
+                $latestPluginVersion = isset($plugin_data->releases[0]->version)
+                    ? $plugin_data->releases[0]->version
+                    : $plugin_data->version;
+                
+                // Retrieve plugin status and abandonment status
+                $is_abandoned = $plugin_data->abandoned ?? null;
+                $is_expired = $plugin_data->status === "eligible" ? false : null;
+                
+                // Check if there are any critical releases
+                $containsCritical = isset($plugin_data->releases) && 
+                    array_reduce($plugin_data->releases, function($carry, $release) {
+                        return $carry || (isset($release->critical) && $release->critical === true);
+                    }, false);
+
+                // Get plugin license key from project YAML (handling Craft 5)
+                $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
+                if ($pluginLicenseKey && $pluginLicenseKey[0] === "$") {
+                    $pluginLicenseKey = App::env(ltrim($pluginLicenseKey, '$')) ?? null;
+                }
+
+                // Add plugin update information to the list
+                $plugins_updates[] = (object) [
+                    'type' => 'plugin',
+                    'handle' => $plugin_handle,
+                    'name' => $plugin_data->name, // updated to $plugin_data
+                    'version' => $plugin_data->version, // updated to $plugin_data
+                    'update_available' => $latestPluginVersion !== $plugin_data->version, // compare the version
+                    'update_version' => $latestPluginVersion !== $plugin_data->version ? $latestPluginVersion : null,
+                    'update_type' => VersionHelper::compareVersions($latestPluginVersion, $plugin_data->version),
+                    'license_key' => $pluginLicenseKey,
+                    'is_expired' => $is_expired,
+                    'is_critical' => $containsCritical,
+                    'is_abandoned' => $is_abandoned,
+                ];
+            } else {
+                // If plugin data doesn't exist, log or handle the absence of the plugin
+                \Craft::error("Plugin '$plugin_handle' not found in update info.", __METHOD__);
             }
 
-            $plugins_updates[] = (object) [
-                'type' => 'plugin',
-                'handle' => $plugin_handle,
-                'name' => $plugin->name,
-                'version' => $plugin->version,
-                'update_available' => $latestPluginVersion !== $plugin->version,
-                'update_version' => $latestPluginVersion !== $plugin->version ? $latestPluginVersion : null,
-                'update_type' => VersionHelper::compareVersions($latestPluginVersion, $plugin->version),
-                'license_key' => $pluginLicenseKey,
-                'is_expired' => $is_expired,
-                'is_critical' => $containsCritical,
-                'is_abandoned' => $is_abandoned,
-            ];
         }
         return $plugins_updates;
     }
