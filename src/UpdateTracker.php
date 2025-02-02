@@ -21,15 +21,20 @@ use colindorr\craftcmsupdatetracker\services\TrackUpdatesService;
  */
 class UpdateTracker extends Plugin
 {
+    /** @var string */
     public $schemaVersion = '1.0.0';
-    public static $pluginHandle;
+
+    /** @var bool */
     public $hasCpSettings = true;
+
+    /** @var string */
     public static $plugin_handle = "update-tracker";
+
+
 
     public function init(): void
     {
         parent::init();
-        self::$pluginHandle = $this->handle;
 
         // Craft 4
         // Deferred code execution to avoid conflicts with other plugins/modules
