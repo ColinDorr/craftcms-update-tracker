@@ -59,8 +59,7 @@ class VersionHelper
         $update_type_text = "[" . $item->update_type . "]" . " ";
         $item_name_text = $item->name . " ";
         $item_version_text = ($item->update_available ? ($item->version . " => " . $item->update_version) : $item->version);
-        $item_status_text = $item->is_expired || $item->is_abandoned ? ( $item->is_abandoned ? " (Expired)" : " (Abandoned)" ) : "";
-        
+        $item_status_text = $item->is_abandoned ? " (Abandoned)" : ($item->is_expired ? " (Expired)" : "");        
         return $is_critical_text . $update_type_text . $item_name_text . $item_version_text . $item_status_text ;
     }
 
