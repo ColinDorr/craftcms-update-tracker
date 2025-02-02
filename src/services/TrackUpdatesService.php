@@ -23,6 +23,11 @@ class TrackUpdatesService
             return $release->critical === true;
         }));
 
+
+        dd($updateInfo->cms);
+
+
+
         return [(object) [
             'type' => 'craft',
             'handle' => 'craftcms',
