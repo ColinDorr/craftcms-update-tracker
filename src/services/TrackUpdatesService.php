@@ -56,8 +56,7 @@ class TrackUpdatesService
         $plugins_updates = [];
         // dd($plugins);
         foreach ($plugins as $handle => $plugin) {
-            // Assuming $plugin_data is your updated object containing plugin information
-            $plugin_handle = $plugin_data->id; // craft 3 - updated to use $plugin_data
+            $plugin_handle = $plugin->id; // craft 3 - updated to use $plugin_data
             $plugin_data = $updateInfo->plugins[$plugin_handle] ?? null; // Retrieve plugin data
 
             // Check if plugin data exists, then proceed
