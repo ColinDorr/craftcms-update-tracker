@@ -60,17 +60,7 @@ class VersionHelper
         $item_name_text = $item->name . " ";
         $item_version_text = ($item->update_available ? ($item->version . " => " . $item->update_version) : $item->version);
         $item_status_text = $item->is_abandoned ? " (Abandoned)" : ($item->is_expired ? " (Expired)" : "");      
-        
-        if($item->name === "Amazon S3"){
-            dd([
-                "item" => $item,
-                "check_is_abandoned" => $item->is_abandoned,
-                "check_is_expired" => $item->is_expired,
-                "check_1" => $item->is_abandoned ? " (Abandoned)" : ($item->is_expired ? " (Expired)" : ""),
-                "text" => $is_critical_text . $update_type_text . $item_name_text . $item_version_text . $item_status_text
-            ]);
-        };
-        
+
         return $is_critical_text . $update_type_text . $item_name_text . $item_version_text . $item_status_text ;
     }
 

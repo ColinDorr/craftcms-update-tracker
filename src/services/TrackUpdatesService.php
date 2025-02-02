@@ -87,6 +87,7 @@ class TrackUpdatesService
                 'is_abandoned' => $is_abandoned,
             ];
         }
+        dd($plugins_updates);
         return $plugins_updates;
     }
 
