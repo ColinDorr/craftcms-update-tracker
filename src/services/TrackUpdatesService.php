@@ -60,13 +60,11 @@ class TrackUpdatesService
             $plugin_handle = $plugin->id; // craft 3
             $plugin_data = $updateInfo->plugins[$plugin_handle] ?? null ;
             $latestPluginVersion = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) ? $updateInfo->plugins[$plugin_handle]->releases[0]->version : $plugin->version;
-            $is_abandoned = $plugin_data && isset($updateInfo->plugins[$plugin_handle]->abandoned) ? $updateInfo->plugins[$plugin_handle]->abandoned : null;
-            $is_expired = $plugin_data && isset($updateInfo->plugins[$plugin_handle]->status) ? $updateInfo->plugins[$plugin_handle]->status === "eligible" : null;
+            $is_abandoned = $plugin_data && isset($plugin_data->abandoned) ? $plugin_data->abandoned : null;
+            $is_expired = $plugin_data && isset($plugin_data->status) ? $plugin_data->status === "eligible" : null;
             $containsCritical = $plugin_data && !empty($updateInfo->plugins[$plugin_handle]->releases) && !empty(array_filter($updateInfo->plugins[$plugin_handle]->releases, function($release) {
                 return $release->critical === true;
             }));
-
-            dd($plugin_data);
 
             // Get plugin license key
             $pluginLicenseKey = $projectYamlPlugins[$plugin_handle]['licenseKey'] ?? null;
