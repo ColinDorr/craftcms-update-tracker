@@ -73,4 +73,18 @@ class CheckForUpdatesController extends Controller
             return ExitCode::UNSPECIFIED_ERROR;
         }
     }
+
+    /**
+     * Run a test update check and send notifications.
+     *
+     * Usage:
+     * - `php craft update-tracker/check-for-updates/test`
+     *
+     * @return int Exit code
+     */
+    public function actionTest(): int
+    {
+        $this->force = true;
+        return $this->actionRun();
+    }
 }

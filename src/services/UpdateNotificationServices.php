@@ -35,16 +35,15 @@ class UpdateNotificationServices extends Component
         self::$frequency = $pluginSettings->frequency ?? '';
         self::$next_planned_email_timestamp = $pluginSettings->next_planned_email_timestamp ?? 0;
 
-        // Get update info (you would fetch this from your actual update check)
+        // Get update info
         $updateInfo = TrackUpdatesService::getUpdateInfo();
         self::$available_update = $updateInfo['available_update'] ?? [];
         self::$up_to_date = $updateInfo['up_to_date'] ?? [];
     }
 
     // Check for updates and send emails
-    public static function checkForUpdatesAndSendEmail( bool $forced = false): array
+    public static function checkForUpdatesAndSendEmail(bool $forced = false): array
     {
-        $pluginSettings = Craft::$app->plugins->getPlugin(self::$plugin_handle)->settings;
         self::start();
 
         $invalid_checks = [];
@@ -58,13 +57,13 @@ class UpdateNotificationServices extends Component
         }
 
         if (!self::checkAllowedFrequency() && !$forced) {
-            $invalid_checks[] = "Blocked by selected ferquency";
+            $invalid_checks[] = "Blocked by selected frequency";
         }
 
-        if (count($invalid_checks) === 0 || $forced ){
+        if (count($invalid_checks) === 0 || $forced) {
             self::updateLastEmailSentTimestamp();
             EmailServices::sendEmail();
-            return ["Mail was send"];
+            return ["Mail was sent"];
         } else {
             return $invalid_checks;
         }
@@ -97,43 +96,47 @@ class UpdateNotificationServices extends Component
 
     private static function getGetDates(): array
     {
-        // Add logic to check frequency if needed
         $currentDay = new DateTime('today 00:01'); // Base time
-        $currentDayTimestamp = $currentDay->getTimestamp();
 
-        // Define intervals using DateInterval for better clarity and reusability
+        // Adjust to the last occurrence of self::$day_of_week if it's not today
+        if (!empty(self::$day_of_week) && date('N', strtotime(self::$day_of_week)) !== (int)$currentDay->format('N')) {
+            $currentDay->modify("last " . self::$day_of_week);
+        }
+
+        // Now update $startDate to reflect the adjusted $currentDay
+        $startDate = clone $currentDay;
+
+        // Define intervals
         $intervals = [
-            'Daily' => (clone $currentDay)->modify('+1 day')->getTimestamp(),
-            'Weekly' => (clone $currentDay)->modify('+1 week')->getTimestamp(),
-            'Bi-Weekly' => (clone $currentDay)->modify('+2 weeks')->getTimestamp(),
-            'Monthly' => (clone $currentDay)->modify('+1 month')->getTimestamp(),
+            'Daily' => (clone $startDate)->modify('+1 day')->getTimestamp(),
+            'Weekly' => (clone $startDate)->modify('+1 week')->getTimestamp(),
+            'Bi-Weekly' => (clone $startDate)->modify('+2 weeks')->getTimestamp(),
+            'Monthly' => (clone $startDate)->modify('+1 month')->getTimestamp(),
         ];
 
         return [
-            "current" => $currentDayTimestamp,
-            "selected_frequency" => $intervals[self::$frequency]
+            "current" => $currentDay->getTimestamp(),
+            "selected_frequency" => $intervals[self::$frequency] ?? $currentDay->getTimestamp()
         ];
     }
 
     private static function checkAllowedFrequency(): bool
     {
         $dates = self::getGetDates();
-        $current = $dates["current"];
-        return $current >= self::$next_planned_email_timestamp;
+        return $dates["current"] >= self::$next_planned_email_timestamp;
     }
 
     // Determine the type of update (Minor, Major, or Critical)
     private static function determineUpdateType(array $available_update): ?string
     {
-        if (count($available_update) === 0) {
+        if (empty($available_update)) {
             return null;
         }
-        // Ensure the available_update array has elements before trying to access them
-        if (isset($available_update[0])) {
-            if (preg_match('/\[(.*?)\]/', $available_update[0], $matches)) {
-                return $matches[1];
-            }
+
+        if (isset($available_update[0]) && preg_match('/\[(.*?)\]/', $available_update[0], $matches)) {
+            return $matches[1];
         }
+
         return null;
     }
 
@@ -141,11 +144,12 @@ class UpdateNotificationServices extends Component
     private static function updateLastEmailSentTimestamp(): void
     {
         $dates = self::getGetDates();
-        $current = $dates["current"];
         $selected_frequency = $dates["selected_frequency"];
 
-        $pluginSettings = Craft::$app->plugins->getPlugin(self::$plugin_handle)->settings;
-        $pluginSettings["next_planned_email_timestamp"] = $selected_frequency;
-        Craft::$app->plugins->savePluginSettings(Craft::$app->plugins->getPlugin(self::$plugin_handle), $pluginSettings->toArray());
+        $plugin = Craft::$app->plugins->getPlugin(self::$plugin_handle);
+        $pluginSettings = $plugin->settings;
+
+        $pluginSettings->next_planned_email_timestamp = $selected_frequency;
+        Craft::$app->plugins->savePluginSettings($plugin, $pluginSettings->toArray());
     }
 }

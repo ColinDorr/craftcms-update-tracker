@@ -1,6 +1,6 @@
 {% requireAdmin %}
 
-{% set plugin_handle = "update-tracker" %}
+{% set plugin_handle = plugin_handle %}
 
 <style>
 
@@ -48,8 +48,8 @@
         <input type="hidden" name="next_planned_email_timestamp" value="{{ settings['next_planned_email_timestamp'] }}">
 
         <div class="field{% if settings.getErrors('email') %} error{% endif %}">
-            <label for="email">{{ "Email Address"|t }}</label>
-            <p class="instructions">{{ ("This email will be used to send update notification emails."|t)|raw }}</p>
+            <label for="email">{{ "Email Address"|t(plugin_handle) }}</label>
+            <p class="instructions">{{ ("This email will be used to send update notification emails."|t(plugin_handle))|raw }}</p>
             <input type="email" id="email" name="email" value="{{ settings['email'] }}" required>
             {% if settings.getErrors('email') %}
                 <ul class="errors">
@@ -61,37 +61,37 @@
         </div>
 
         <div class="field">
-            <label for="version_type">{{ "Minimum Version Update to Track"|t }}</label>
-            <p class="instructions">{{ ("Select the minimum update type you want to track."|t)|raw }}</p>
+            <label for="version_type">{{ "Minimum Version Update to Track"|t(plugin_handle) }}</label>
+            <p class="instructions">{{ ("Select the minimum update type you want to track."|t(plugin_handle))|raw }}</p>
             <select id="version_type" name="version_type" required>
-                <option value="Major" {% if settings['version_type'] == 'Major' %}selected{% endif %}>{{ "Major"|t }}</option>
-                <option value="Minor" {% if settings['version_type'] == 'Minor' %}selected{% endif %}>{{ "Minor"|t }}</option>
-                <option value="Patch" {% if settings['version_type'] == 'Patch' %}selected{% endif %}>{{ "Patch"|t }}</option>
+                <option value="Major" {% if settings['version_type'] == 'Major' %}selected{% endif %}>{{ "Major"|t(plugin_handle) }}</option>
+                <option value="Minor" {% if settings['version_type'] == 'Minor' %}selected{% endif %}>{{ "Minor"|t(plugin_handle) }}</option>
+                <option value="Patch" {% if settings['version_type'] == 'Patch' %}selected{% endif %}>{{ "Patch"|t(plugin_handle) }}</option>
             </select>
         </div>
 
         <div class="field">
-            <label for="day_of_week">{{ "Notification Day"|t }}</label>
-            <p class="instructions">{{ ("Choose which day you would like to receive update reports."|t)|raw }}</p>
+            <label for="day_of_week">{{ "Notification Day"|t(plugin_handle) }}</label>
+            <p class="instructions">{{ ("Choose which day you would like to receive update reports."|t(plugin_handle))|raw }}</p>
             <select id="day_of_week" name="day_of_week" required>
                 {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
-                    <option value="{{ day }}" {% if settings['day_of_week'] == day %}selected{% endif %}>{{ day|t }}</option>
+                    <option value="{{ day }}" {% if settings['day_of_week'] == day %}selected{% endif %}>{{ day|t(plugin_handle) }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="field">
-            <label for="frequency">{{ "Notification Frequency"|t }}</label>
-            <p class="instructions">{{ ("Select how often you want to receive notifications."|t)|raw }}</p>
+            <label for="frequency">{{ "Notification Frequency"|t(plugin_handle) }}</label>
+            <p class="instructions">{{ ("Select how often you want to receive notifications."|t(plugin_handle))|raw }}</p>
             <select id="frequency" name="frequency" required>
                 {% for freq in ['Daily', 'Weekly', 'Bi-weekly', 'Monthly'] %}
-                    <option value="{{ freq }}" {% if settings['frequency'] == freq %}selected{% endif %}>{{ freq|t }}</option>
+                    <option value="{{ freq }}" {% if settings['frequency'] == freq %}selected{% endif %}>{{ freq|t(plugin_handle) }}</option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="button-container">
-            <button type="submit" class="btn submit save-button">{{ "Save Settings"|t }}</button>
+            <button type="submit" class="btn submit save-button">{{ "Save Settings"|t(plugin_handle) }}</button>
         </div>
     </form>
 </div>
